@@ -1,0 +1,290 @@
+---
+title: "Beer Cooling Experiment"
+author: "Davis Cook, Tom Huang, Issac Lin"
+date: "December 9th, 2020"
+output:
+  rmarkdown::pdf_document:
+    fig_caption: yes        
+    includes:  
+      in_header: /users/davis/desktop/R_work/my_header.tex
+geometry: margin=0.75in
+fontsize: 12pt
+
+---
+
+\tableofcontents
+
+\listoffigures
+
+\listoftables
+
+\newpage
+  
+# Introduction
+
+Serving a cool, refreshing drink is a concern of any gracious host. Many studies on the fastest way to chill a room-temperature beverage analyze multiple methods of cooling, including complicated, convoluted and resource intensive techniques not accessible to your average party host. When lacking time and resources, one would naturally be interested in the fastest way to chill a beer using only your average household freezer. By chilling multiple beers in different locations and in different states of contact with frozen food, our experiment identifies the ideal way to store beer in your freezer so that it chills most efficiently.
+  
+  Chilling a room-temperature beer requires transferring away its thermal energy. We identify two main sources of heat transfer in freezers: the refrigeration process, and thermal contact with already frozen items. First, modern refrigerators and freezers transfer heat from food by evaporating a gas, called a refrigerant. The evaporator coils are typically situated near the top of the freezer, where the heat transfer we perceive as "cooling" takes place. We measure "location" — vertical location, to be exact — on the low, middle, and high shelves of the freezer as a distance from these evaporator coils. Second, heat transfer also takes place between the frozen objects and the objects to be frozen. We measure this by "proximity" — beers are either in thermal contact with frozen food, or not in contact with frozen food. By "contact with frozen food", we mean placing the beer with multiple points of contact to frozen meat, vegetables, and fruits, so that as much of the surface area of the bottle is touching frozen food as possible.
+  
+  Our experiment measures the change in temperature of beers after 45 minutes in the freezer in various combinations of these factors, and identifies any significant effect that distance to the evaporator coils (location) or thermal contact with frozen food (proximity) has on the change in temperature of beers. If a set of beers cools down faster under one set of conditions, we can say that those conditions are more effective at transferring heat, and thus transfer a greater amount of heat over constant time. 
+  
+# Statistical Methods
+  
+  Factor A, proximity, has two levels of thermal contact (1 = no contact with freezer items, 2 = in contact with freezer items). Factor B, location, has three levels of vertical location in a freezer (1 = low shelf, 2 = middle shelf, 3 = high shelf). The levels of factor B can also be interpreted as the distance from the evaporator coils, with level 3 being the closest to the evaporator coils and level 1 being the farthest. 
+
+ Given the age and unreliability of the freezers available to the experimenters, it was decided to consider observations over three seperate freezers, and to treat freezers as blocking factors. All three freezers had low, middle, and high shelves, and all had frozen food items inside. 
+ 
+  Our factorial experiment has a complete block design. Block-treatment interactions were anticipated, as there are genuine reasons to assume that the three fridges represent different levels of cooling ability. Interactions between factors A and B was also anticipated, because of the complicated way in which thermal contact changes temperature. The model selected was a full block-treatment interaction ANOVA model:
+
+
+$$\begin{gathered} 
+Y_{hijt}=\mu+\theta_h+\alpha_i+\beta_j+(\alpha \beta)_{ij}+(\theta \alpha )_{hi}+(\theta \beta)_{hj}+(\theta \alpha \beta)_{hij}\\
+\epsilon_{hijt}\sim N(0,\sigma^2)\\
+\epsilon_{hijt} \text{'s are mutually independent}\\
+t = 1,...,6 ;\qquad h = 1,2,3;\qquad i = 1,2 ;\qquad j = 1,2,3.\\
+\end{gathered}$$
+
+
+where $Y_{hijt}$ is the observed temperature difference for the $h$th block in $i$th proximity and $j$ location, $\mu$ is the population mean (a constant), and $\epsilon_{hjit}$ is a normally, independently and identically distributed random error term. The remaining terms represent different interaction parameters between the treatment factors and the blocking factor. We also have $b$ = 3 blocking factors, and we decide to take $r_{hij}$ = 6 observations for each of $v$ = 18 (h*i*j) treatment combinations.
+
+To test our model's assumptions of error variance, the standardized residuals were computed for each observation. Residual plots were examined for normality, and if the absolute value of any standardized residual was greater than 3, the observation could be considered a potential outlier. Residual plots are presented in the Appendix.
+
+## Hypothesis Testing
+
+With the block-treatment interaction model, and the intention to examine all interaction effects, we have a set of 6 simultaneous hypotheses. The four interaction hypotheses are:
+
+\begin{itemize}
+\item{$H_0^{\theta AB}$: No interactions between the three factors}
+\item{$H_0^{AB}$: No interactions between the two factors}
+\item{$H_0^{\theta A}$: No interactions between the two factors}
+\item{$H_0^{\theta B}$: No interactions between the two factors}
+\end{itemize}
+
+If no interaction effect is detected, we may proceed to the two main-effects tests:
+
+\begin{itemize}
+\item{$H_0^{A}: \alpha_1=\alpha_2$}
+\item{$H_0^{B}: \beta_1=\beta_2=\beta_3$}
+\end{itemize}
+
+# Pilot Experiment
+
+The pilot experiment consisted of 6 observations at T.C 111 (first fridge, lowest level, no proximity). In the pilot experiment 95% U.C.B of $\sigma^2$ was observed to be 1.058. We choose $\Delta$ = 1.5 degrees Fahrenheit, and $\pi(\Delta)$ = 0.70; which returned a sample size s = 3 for constant blocks (b=3). Table \ref{tab:plt} includes the pilot experiment data, and Figure 1 shows the taking of temperature during the pilot experiment.
+
+![Taking beer temperature](Beer1.jpeg){#id .class width=50% height=100%}
+
+Since our pilot study did not induce any major modifications to experimental design, to save time we used the data from our pilot experiment in our observations. 
+
+
+# Methodology and Data
+
+  Experimental units consisted of 72 bottles of Yuengling beer. Each experimental unit was randomly assigned to 6 treatment combinations over the 3 freezers (18 total treatment combinations). 108 observations were obtained: with 36 observations for each freezer. 12 observations were recorded at once, with two beers in each treatment combination, depicted in Figure 2. Yeungling’s screw-on tops allowed for undertaking multiple observations with one experimental unit, at the loss of its carbonation. This was not considered as a potential source of error, as beer is mostly water and the loss of carbonation does not represent any significant change in mass or heat capacity.
+  
+![Beers in fridge](Beer3.jpeg){#id .class width=50% height=100%}
+
+
+```{r, echo= FALSE, fig.cap = "\\label{fig:one}Sample distribution of beer temperature", fig.height=5, fig.width=10,fig.pos = "H"}
+thermal <- read.csv("new_thermal.csv", header = TRUE)
+Thermhist <- hist(thermal$TEMP, breaks = c(73,74,75,76,77,78,79), xlab = "Temperature", ylab = "Frequency", las = 1, main = NULL)
+```
+
+  Since our response variable is a difference in temperature, we need an initial temperature for every beer.
+The initial temperature of the beers was calculated as an average of the beers it was stored with. Each set of 12 observations were stored in thermal contact hours before the experiment, so as to maintain a steady equilibrium temperature. A sample distribution of temperature (Figure 3) is pictured.While not a uniform distribution of temperature, it can be considered as a good approximation, especially in light of time constraints. The discrepancies of initial temperature are a sizable source of measurement error, but seem normally distributed.
+  
+  A significant concern for bias existed within the proximity factor — the different specific heats of frozen foods mean that some foods are more effective at transferring heat than others. To combat this bias, food items were randomly switched within freezers across trials. Food items also mostly consisted of meat and frozen fruits/vegetable, with a conscious attempt to avoid low-density frozen objects such as bread. 
+  
+  After being in thermal contact for several hours, and the frozen foods of the proximity factor randomized, the 12 beers were placed in the freezer in a random order and left for 45 minutes. The beers were taken out of the freezer the same order they were stored. The freezer door was left open during this process as an attempt to negate the cooling effects of the freezer during the recording of the temperature. Six cooking thermometers were inserted into the same number of beers at once to record their temperatures, then the other six beers from that set of observations were measured in the same way. The experimental units were then re-sealed, and stored for later observations.
+  
+  The complete data set can be found in Table \ref{tab:data}.
+
+```{r, echo = FALSE}
+library(knitr)
+library(plyr)
+beerdata <- read.table("beerfinal.txt", header = TRUE)
+beerdata$fA <- as.factor(beerdata$proximity)
+beerdata$fB <- as.factor(beerdata$location)
+beerdata$fC <- as.factor(beerdata$blocking_freezer)
+beerdata[2:6] <- NULL
+```
+
+```{r, echo = FALSE}
+rows <- seq_len(nrow(beerdata) %/% 2)
+dttb <- kable(beerdata, align = "cccccc", col.name = c("Experimental Unit","Y","trt", "Proximity", "Location", "Freezer" ), caption = "\\label{tab:data}Complete Data Set for the Beer Cooling Experiment")
+              
+```
+
+# Results
+
+  As shown in Figures \ref{fig:norm} and \ref{fig:qq}, the standardized residuals appear normally distributed, and no standardized residual has a value greater than 3. Hence, we do not identify any data points as outliers, and can say that our errors are approximately normally distributed. Therefore, it can be stated that the model’s assumptions of error normality are acceptable. 
+  
+  Table 1 presents the ANOVA results from our block-treatment interaction model. We use the Bonferroni correction to adjust for 6 simultaneous hypothesis tests with a desired overall probability of type I error of 0.05. We will then reject our hypothesis if p < 0.00833. Based on the ANOVA results, the results of our 6 hypothesis tests at an overall confidence of 0.05 are thus:
+  
+```{r, echo = FALSE}
+#beermod <- aov(RESPONSE~fA+fB+fC+fA:fB, data = beerdata)
+beermodfull <- aov(RESPONSE~fA+fB+fC+fA:fB+fA:fC+fB:fC+fA:fB:fC, data =beerdata)
+#anova(beermod)
+tb <- anova(beermodfull)
+#kable(anova(beermod),
+  #caption = "\\label{tab:cmanova}Anova block-treatment table for beer cooling  experiment")
+rownames(tb) <- c('A(Proximity)', 'B(Location)', 'Block(Freezer)', 'AB', 'A-Block', 'B-Block', 'A-B-Block', 'Error')
+```
+
+```{r, echo = FALSE}
+kable(tb, digits = c(2,2,2,2,5), 
+      caption = "\\label{tab:anova}Anova block-treatment interaction table for beer cooling  experiment")
+```
+## Interaction Parameters
+
+\begin{itemize}
+\item We fail to reject the null hypothesis $H_0^{\theta AB}$ at a significance of 0.00833, that there is a negligible interaction between the proximity, location, and type of freezer applied when chilling room-temperature beers. 
+\item We fail to reject the null hypothesis $H_0^{AB}$, at a significance of 0.00833, that there is a negligible interaction between factors proximity and location.
+\item We fail to reject the null hypothesis $H_0^{\theta A}$, at a significance of 0.00833, that there is a negligible interaction between factors proximity and freezer.
+\item We fail to reject the null hypothesis $H_0^{\theta B}$, at a significance of 0.00833, that there is a negligible interaction between factors location and freezer.
+\end{itemize}
+Interaction plots found in the Appendix also support the ANOVA result. 
+
+## Main Effect Parameters:
+Since all our interactions are negligible, we can analyze our main effects:
+
+\begin{itemize}
+\item We reject the null hypothesis $H_0^A$, at a significance level of 0.00833, and find a significant effect of the proximity of beer to frozen food items on the change in temperature after 45 minutes.
+\item We reject the null hypothesis $H_0^B$, at a significant level of 0.00833, and find a significant effect of the location of beer in a freezer on the change in temperature after 45 minutes.
+\end{itemize}
+
+We see that the msE of our blocking factor was ~47 times larger than total msE, indicating significant variation between blocking factors, and that blocking was a worthwhile design choice in this experiment.
+
+## Multiple Comparisons
+
+We applied Tukey's method of multiple comparisons separately for each factor, at a confidence of 97.5%, using a Bonferonni adjustment to achieve an overall confidence of 95% over the two tests. We will then say an interval is statistically significant with p < 0.025.
+
+```{r, echo = FALSE}
+avgs <- aggregate(RESPONSE~fA+fB, data = beerdata, mean)
+```
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+library(emmeans)
+
+lsm_A<- emmeans(beermodfull, ~fA)
+lsm_B<- emmeans(beermodfull, ~fB)
+lsm_C<- emmeans(beermodfull, ~fC)
+
+zfA <- summary(contrast(lsm_A, method = "pairwise", adjust = "tukey"),
+         infer = c(T, T), level = 0.975)
+zfB <- summary(contrast(lsm_B, method = "pairwise", adjust = "tukey"),
+         infer = c(T, T), level = 0.975)
+
+kable(zfA, digits = 2, caption = "\\label{tab:pair1}Pairwise Comparisons between levels of proximity")
+
+kable(zfB, digits = 2, caption = "\\label{tab:pair2}Pairwise Comparisons between levels of location")
+
+
+```
+  
+  Tukey’s method of multiple comparisons reveals a significant difference between the two levels of the proximity factor, averaged over the location factor and freezer blocking factor, at an experimentwise confidence level of at least 95%. We can say that thermal contact with frozen foods has a greater effect on the change of temperature than no thermal contact with frozen foods, by 2.5 degrees Fahrenheit.
+  
+  Comparisons were also made between the vertical levels of freezer, averaged over the proximity factor and freezer blocking factor. A statistically significant difference between locations 1 and 3 (bottom & top) was observed at an experimentwise confidence level of at least 95%. However, there was a lack of significant difference between locations 1 and 2 (bottom & middle) and locations 2 and 3 (middle & top). We interpret this as location 3 (top of freezer) having the greatest effect on the temperature of the beer. 
+
+# Conclusions
+
+  We find that there is a significant effect of the beer's proximity to frozen food after 45 minutes of cooling. Thermal contact with frozen foods seems to have a greater "cooling" effect. We can interpret these results as thus: items in thermal contact with frozen foods will exchange heat more efficiently.From our knowledge of thermodynamics, we can say that a beer placed in thermal contact with frozen food will reach a target temperature faster than a beer not in thermal contact with frozen food, since heat is being exchanged more efficiently in the former case. Thus, we can assume that beers in contact with frozen food will reach drinking temperature faster than beers not in contact with frozen food.
+
+  Among the location parameters, significant differences were found in the change in temperature of a beer between the bottom and the top of the freezer. Such changes can be attributed to the way a freezer functions; the evaporator coil is typically located near the top of the fridge, where heat is drawn from. Testing this parameter over multiple freezers confirm that these findings could be applicable to a wider variety of freezers. Following the same logic from our proximity factor, we can say that a larger difference in temperature over 45 minutes suggests that beers will reach a target temperature faster when placed higher in the fridge. Thus, we can assume that beers on the highest shelf of the freezer will reach drinking temperature faster than beers on the lowest shelf.
+  
+  With our results, recommend that party hosts short on time place their beers in the top of their freezer, in contact with other frozen items, to get their beers to drinking temperature as fast as possible. But don't leave them in for too long!
+
+
+# Appendix
+
+
+```{r, echo = FALSE, fig.cap = "\\label{fig:2}Temperature Difference vs. Proximity", fig.height=5, fig.width=10, fig.pos = "H"}
+plot(beerdata$RESPONSE~beerdata$fA,
+ylim=c(10,50), ylab = 'Temperature Difference', xlab = 'Proximity', las = 1, col = 'dodgerblue', pch = 1, cex =1.5, xaxt='n',xlim = c(0.5,2.5))
+axis(1,c(1, 2))
+```
+
+```{r, echo = FALSE, fig.cap = "\\label{fig:3}Temperature Difference vs. Location", fig.height=5, fig.width=10, fig.pos = "H"}
+plot(beerdata$RESPONSE~beerdata$fB,
+ylim=c(10,50), ylab = 'Temperature Difference', xlab = 'Location', las = 1, col = 'dodgerblue', pch = 1, cex =1.5, xaxt='n',xlim = c(0.5,3.5))
+axis(1,c(1, 2, 3))
+```
+
+```{r, echo = FALSE, fig.cap = "\\label{fig:4}Temperature Difference vs. Freezer", fig.height=5, fig.width=10, fig.pos = "H"}
+plot(beerdata$RESPONSE~beerdata$fC,
+ylim=c(10,50), ylab = 'Temperature Difference', xlab = 'Freezer', las = 1, col = 'dodgerblue', pch = 1, cex =1.5, xaxt='n',xlim = c(0.5,3.5))
+axis(1,c(1, 2, 3))
+```
+
+```{r, echo = FALSE, fig.cap = "\\label{fig:5}Proximity-Location Interaction Plot", fig.height=5, fig.width=10}
+interaction.plot(beerdata$fA, beerdata$fB, beerdata$RESPONSE, xlab = "Factor A - Proximity", 
+                 ylim = c(10, 40), type = "b", trace.label = "Location", 
+                 fixed = TRUE, lwd = 1.5,
+                 ylab =  expression(paste("Final Temperature" ), las = 1))
+```
+
+```{r, echo = FALSE, fig.cap = "\\label{fig:6}Block-Proximity Interaction Plot", fig.height=5, fig.width=10}
+
+interaction.plot(beerdata$fA, beerdata$fC, beerdata$RESPONSE, xlab = "Proximity", 
+                 ylim = c(10, 40), type = "b", trace.label = "Freezer", 
+                 fixed = TRUE, lwd = 1.5,
+                 ylab =  expression(paste("Final Temperature"), las = 1))
+```
+
+```{r, echo = FALSE, fig.cap = "\\label{fig:7}Block-Location Interaction Plot", fig.height=5, fig.width=10}
+interaction.plot(beerdata$fB, beerdata$fC, beerdata$RESPONSE, xlab = "Location", 
+                 ylim = c(10, 40), type = "b", trace.label = "Freezer", 
+                 fixed = TRUE, lwd = 1.5,
+                 ylab =  expression(paste("Final Temperature"), las = 1))
+#plot(avgs$fA[avgs$fB==2],avgs$RESPONSE[avgs$fB==2], ylab= "Average response", xlab = "Factor A", ylim = c(10,40), pch = 2, las = 1, col = "black", xaxt = "n")
+#points(avgs$fA[avgs$fB==1],avgs$RESPONSE[avgs$fB==1], pch = 16, col = "blue")
+#points(avgs$fA[avgs$fB==3],avgs$RESPONSE[avgs$fB==3], pch = 6, col = "purple")
+#lines(avgs$fA[avgs$fB==1],avgs$RESPONSE[avgs$fB==1], col = "dodgerblue")
+#lines(avgs$fA[avgs$fB==2],avgs$RESPONSE[avgs$fB==2], col = "dodgerblue")
+#lines(avgs$fA[avgs$fB==3],avgs$RESPONSE[avgs$fB==3], col = "dodgerblue")
+#legend(2.1,39, c("Level 1", "Level 2","Level 3"), pch = 16,2,6, col=c("blue", "black" ,"purple"))
+#axis(1, c(1,2))
+```
+
+
+
+```{r, echo = FALSE, fig.cap = "\\label{fig:8}Standardized Residuals vs. Proximity", fig.height=5, fig.width=10}
+plot(rstandard(beermodfull)~beerdata$fA,
+ylim=c(-4,4), ylab = 'Standardized residuals', xlab = 'Proximity', las = 1, col = 'dodgerblue', pch = 1, cex =1.5, xaxt='n',xlim = c(0.5,2.5))
+axis(1,c(1, 2))
+```
+  
+
+```{r, echo = FALSE, fig.cap = "\\label{fig:9}Standardized Residuals vs. Location", fig.height=5, fig.width=10}
+plot(rstandard(beermodfull)~beerdata$fB,
+ylim=c(-4,4), ylab = 'Standardized residuals', xlab = 'Location', las = 1, col = 'dodgerblue', pch = 1, cex =1.5, xaxt='n',xlim = c(0.5,3.5))
+axis(1,c(1, 2,3))
+```
+
+```{r, echo = FALSE, fig.cap = "\\label{fig:10}Standardized Residuals vs. Freezer", fig.height=5, fig.width=10}
+
+plot(rstandard(beermodfull)~beerdata$fC,
+ylim=c(-4,4), ylab = 'Standardized residuals', xlab = 'Block Factor', las = 1, col = 'dodgerblue', pch = 1, cex =1.5, xaxt='n',xlim = c(0.5,3.5))
+axis(1,c(1,2,3))
+```
+
+```{r, echo = FALSE, fig.height=5, fig.width=10, fig.cap = "\\label{fig:norm}Standardized Residuals vs. Fitted value"}
+plot(rstandard(beermodfull)~beermodfull$fitted.values,
+ylim=c(-3,3), las=1, ylab = 'Standardized Residuals', xlim = c(20,40), xlab = 'Fitted value')
+```
+
+```{r, echo = FALSE, fig.cap="\\label{fig:qq}Q-Q plot", fig.height=5, fig.width=10}
+qqnorm(rstandard(beermodfull), ylim=c(-3,3), ylab="Standardized Residuals", xlab="Theoretical Quantiles", las=1, col ="dodgerblue", pch=16, main = "",
+     cex=1.5, xlim=c(-3,3))
+qqline(rstandard(beermodfull))
+ 
+```
+
+```{r, echo= FALSE, fig.height=5, fig.width=10}
+library(knitr)
+plt <- read.csv("PILOT_DATA_FINAL.csv", header = TRUE)
+pltk <- kable(plt,align = "cccccc", col.name = c("Experimental Unit","Y","trt", "Proximity", "Location", "Freezer" ), caption = "\\label{tab:plt}Pilot Data Set for the Beer Cooling Experiment")
+pltk
+```
+
+```{r, echo = FALSE}
+dttb
+```
